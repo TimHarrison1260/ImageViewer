@@ -23,6 +23,14 @@
             <Setter Property="ItemTemplate" Value="{StaticResource ListView_ImageTemplate}" />
             <Setter Property="ItemsPanel" Value="{StaticResource ListView_HorizontalItems}" />
         </Style>
+        
+        <Storyboard x:Key="FadeInImage" >
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.1" To="1" Duration="0:0:2" />
+        </Storyboard>
+        <Storyboard x:Key="FadeOutImage" >
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" From=" 1" To="0.1" Duration="0:0:2" />
+        </Storyboard>
+        
     </Window.Resources>
 
     <Grid>
@@ -34,15 +42,38 @@
             <!-- The listview that shows the complete list of images. -->
             <ListView x:Name="imageList" 
                       Grid.Row="0" 
-                      SelectedIndex="0"
+                      SelectedItem="{Binding Source={StaticResource ImagesSource}, Path=CurrentSlide, Mode=TwoWay}"
                       ItemsSource="{Binding Source={StaticResource ImagesSource}, Path=Slides}"
-                      Style="{StaticResource ListViewStyle_HorizontalImages}">
+                      Style="{StaticResource ListViewStyle_HorizontalImages}"
+                      SelectionChanged="imageList_SelectionChanged" 
+                      SourceUpdated="imageList_SourceUpdated">
+                <!--<Trigger Property="ListViewItem.IsSelected" Value="True">-->
+                    <!--<Trigger.ExitActions>-->
+                        <!--<BeginStoryboard Storyboard="{StaticResource FadeInImage}" />-->
+                    <!--</Trigger.ExitActions>-->
+                <!--</Trigger>-->
             </ListView>
+
             <!-- This should display the selected / highlighted thumbnail.
                  Therefore it should be bound to the selectedItem of 
                  the ListView.-->
+            <!--Source="{Binding ElementName=imageList, Path=SelectedItem.Image, Mode=OneWay, 
+                            NotifyOnSourceUpdated=True, NotifyOnTargetUpdated=True, UpdateSourceTrigger=PropertyChanged}"-->
             <Image x:Name="currentImage" Grid.Row="1"
-                   Source="{Binding ElementName=imageList, Path=SelectedItem.Image}">
+                   Source="{Binding Source={StaticResource ImagesSource}, Path=CurrentSlide.Image, Mode=OneWay}"
+                   Unloaded="currentImage_Unloaded" 
+                   Loaded="currentImage_Loaded" 
+                   SourceUpdated="currentImage_SourceUpdated"
+                   TargetUpdated="currentImage_TargetUpdated"
+                   Opacity="1">
+                <Image.RenderTransform>
+                    <TranslateTransform />
+                </Image.RenderTransform>
+                <!--<Image.Triggers>
+                    <EventTrigger RoutedEvent="Image.SourceUpdated">
+                        <BeginStoryboard Storyboard="{StaticResource FadeInImage}" />
+                    </EventTrigger>
+                </Image.Triggers>-->
             </Image>
         </Grid>
     </Grid>
